@@ -15,6 +15,10 @@
 
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet Map Library -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <div id="app">
@@ -41,6 +45,11 @@
             <section id="resultsSection" class="hidden">
                 <h2 id="resultsTitle">Local Results</h2>
                 <div id="resultsList"></div>
+            </section>
+
+            <section id="mapSection" class="hidden">
+                <h2>Neighbor Map</h2>
+                <div id="map" style="height: 400px; width: 100%; border-radius: 15px; box-shadow: 0 1px 5px rgba(0,0,0,0.1);"></div>
             </section>
 
             <section id="myProjectsSection" class="hidden">
@@ -84,6 +93,7 @@
 
         <nav class="tab-bar">
             <div class="tab-item active" id="searchTab">Search</div>
+            <div class="tab-item" id="mapTab">Map</div>
             <div class="tab-item" id="projectsTab">My Projects</div>
             <div class="tab-item" id="inboxTab">Inbox</div>
         </nav>

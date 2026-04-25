@@ -3,6 +3,7 @@ let projects = [];
 let userRequests = []; // Track user's joined projects
 let inboxMessages = []; // Track simulated messages
 let chatHistory = {}; // Format: { "Vendor Name": [ {from: 'user', text: '...'}, {from: 'vendor', text: '...'} ] }
+let map = null;
 
 // Load Mock Data
 async function loadData() {
@@ -42,25 +43,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const resultsSection = document.getElementById('resultsSection');
     const myProjectsSection = document.getElementById('myProjectsSection');
     const inboxSection = document.getElementById('inboxSection');
+    const mapSection = document.getElementById('mapSection');
     const conversationSection = document.getElementById('conversationSection');
     const searchTab = document.getElementById('searchTab');
+    const mapTab = document.getElementById('mapTab');
     const projectsTab = document.getElementById('projectsTab');
     const inboxTab = document.getElementById('inboxTab');
 
     // Tab Switching
     searchTab.addEventListener('click', () => { setActiveTab(searchTab); showSection('search'); });
+    mapTab.addEventListener('click', () => { 
+        setActiveTab(mapTab); 
+        showSection('map'); 
+        initMap(); 
+    });
     projectsTab.addEventListener('click', () => { setActiveTab(projectsTab); showSection('projects'); renderMyProjects(); });
     inboxTab.addEventListener('click', () => { setActiveTab(inboxTab); showSection('inbox'); renderInbox(); });
 
     document.getElementById('backToInbox').onclick = () => showSection('inbox');
 
     function setActiveTab(tab) {
-        [searchTab, projectsTab, inboxTab].forEach(t => t.classList.remove('active'));
+        [searchTab, mapTab, projectsTab, inboxTab].forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
     }
 
     function showSection(type) {
-        [document.querySelector('.search-container'), resultsSection, myProjectsSection, inboxSection, conversationSection].forEach(s => s.classList.add('hidden'));
+        [document.querySelector('.search-container'), resultsSection, myProjectsSection, inboxSection, conversationSection, mapSection].forEach(s => s.classList.add('hidden'));
         
         if (type === 'search') {
             document.querySelector('.search-container').classList.remove('hidden');
@@ -71,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
             inboxSection.classList.remove('hidden');
         } else if (type === 'conversation') {
             conversationSection.classList.remove('hidden');
+        } else if (type === 'map') {
+            mapSection.classList.remove('hidden');
         }
     }
 
@@ -90,12 +100,50 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         renderResults(filteredVendors, zipcode);
+        showSection('search');
         resultsSection.classList.remove('hidden');
     });
 
     document.getElementById('sendChatBtn').onclick = () => sendMessage();
     document.getElementById('chatInput').onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
 });
+
+function initMap() {
+    if (map) return; // Already initialized
+
+    // Center on Mountain View (zip 94043 area)
+    map = L.map('map').setView([37.422, -122.084], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Plot Vendors (Blue Icons)
+    vendors.forEach(v => {
+        if (v.lat && v.lng) {
+            L.marker([v.lat, v.lng]).addTo(map)
+                .bindPopup(`<b>${v.name}</b><br>${v.category}<br><button class="ios-btn-small" onclick="viewDetails(${v.id}, '94043')">View Deals</button>`);
+        }
+    });
+
+    // Plot Neighbor Projects (Green Icons)
+    const greenIcon = new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+    });
+
+    projects.forEach(p => {
+        const vendor = vendors.find(v => v.id === p.vendorId);
+        if (p.lat && p.lng) {
+            L.marker([p.lat, p.lng], {icon: greenIcon}).addTo(map)
+                .bindPopup(`<b>${p.neighborName}'s House</b><br>Active: ${vendor.name}<br><em>"${p.description}"</em><br><button class="ios-btn-small" onclick="viewDetails(${vendor.id}, '${p.zipcode}')">Join Project</button>`);
+        }
+    });
+}
 
 function renderResults(filteredVendors, zipcode) {
     const resultsList = document.getElementById('resultsList');
@@ -173,8 +221,6 @@ document.getElementById('submitRequestBtn').onclick = () => {
     };
 
     userRequests.push(newRequest);
-    
-    // Initialize Chat History with user's initial request
     chatHistory[currentVendor.name] = [{ from: 'user', text: `Hi! I need help with: ${requirement}. I see you are working at my neighbor's house!`, date: new Date().toLocaleTimeString() }];
 
     alert(`Success! Your request has been sent to ${currentVendor.name}.`);
@@ -196,7 +242,6 @@ function simulateVendorResponse(request) {
             date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
         
-        // Add to chat history
         chatHistory[request.vendorName].push({ from: 'vendor', text: vendorReplyText, date: new Date().toLocaleTimeString() });
 
         const req = userRequests.find(r => r.id === request.id);
@@ -227,8 +272,7 @@ function renderInbox() {
 
         const card = document.createElement('div');
         card.className = 'vendor-card';
-        card.style.flexDirection = 'column';
-        card.style.alignItems = 'flex-start';
+        card.style.flexDirection = 'column'; card.style.alignItems = 'flex-start';
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; width:100%;">
                 <h3 style="font-size:16px;">${msg.from}</h3>
@@ -249,7 +293,6 @@ function openChat(vendorName) {
     currentVendorChat = vendorName;
     document.getElementById('chatVendorName').textContent = vendorName;
     renderChatHistory();
-    // Hide Inbox and show Conversation
     document.getElementById('inboxSection').classList.add('hidden');
     document.getElementById('conversationSection').classList.remove('hidden');
 }
@@ -260,7 +303,6 @@ function renderChatHistory() {
     const container = document.getElementById('chatHistory');
     container.innerHTML = '';
     const messages = chatHistory[currentVendorChat] || [];
-
     messages.forEach(m => {
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${m.from}`;
@@ -274,12 +316,9 @@ function sendMessage() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (!text) return;
-
     chatHistory[currentVendorChat].push({ from: 'user', text: text, date: new Date().toLocaleTimeString() });
     input.value = '';
     renderChatHistory();
-
-    // Sim response
     setTimeout(() => {
         chatHistory[currentVendorChat].push({ from: 'vendor', text: "Got it! Let me check my schedule and get back to you.", date: new Date().toLocaleTimeString() });
         renderChatHistory();
@@ -311,7 +350,7 @@ function renderMyProjects() {
         list.appendChild(card);
     });
 }
-// Modal Close logic
+
 document.querySelector('.close-btn').onclick = () => {
     document.getElementById('detailModal').classList.add('hidden');
 };

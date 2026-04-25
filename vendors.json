@@ -5,7 +5,8 @@
         "category": "Plumbing",
         "phone": "555-0101",
         "zipcodes": ["94043", "94040"],
-        "rating": 4.8
+        "rating": 4.8,
+        "lat": 37.422, "lng": -122.084
     },
     {
         "id": 2,
@@ -13,7 +14,8 @@
         "category": "Fencing",
         "phone": "555-0202",
         "zipcodes": ["94043", "95051"],
-        "rating": 4.5
+        "rating": 4.5,
+        "lat": 37.415, "lng": -122.075
     },
     {
         "id": 3,
@@ -21,7 +23,8 @@
         "category": "Painting",
         "phone": "555-0303",
         "zipcodes": ["94040", "94041"],
-        "rating": 4.9
+        "rating": 4.9,
+        "lat": 37.386, "lng": -122.083
     },
     {
         "id": 4,
@@ -29,7 +32,8 @@
         "category": "Roofing",
         "phone": "555-0404",
         "zipcodes": ["94043"],
-        "rating": 4.2
+        "rating": 4.2,
+        "lat": 37.430, "lng": -122.095
     },
     {
         "id": 5,
@@ -37,6 +41,7 @@
         "category": "Handyman",
         "phone": "555-0505",
         "zipcodes": ["95051", "94040"],
-        "rating": 4.7
+        "rating": 4.7,
+        "lat": 37.352, "lng": -121.953
     }
 ]

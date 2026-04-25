@@ -5,7 +5,8 @@
         "zipcode": "94043",
         "neighborName": "Alice S.",
         "status": "In Progress",
-        "description": "Full bathroom repiping"
+        "description": "Full bathroom repiping",
+        "lat": 37.425, "lng": -122.080
     },
     {
         "id": 102,
@@ -13,7 +14,8 @@
         "zipcode": "94043",
         "neighborName": "Bob M.",
         "status": "Starting Next Week",
-        "description": "Backyard perimeter fence"
+        "description": "Backyard perimeter fence",
+        "lat": 37.418, "lng": -122.072
     },
     {
         "id": 103,
@@ -21,6 +23,7 @@
         "zipcode": "94040",
         "neighborName": "Charlie D.",
         "status": "In Progress",
-        "description": "Exterior house painting"
+        "description": "Exterior house painting",
+        "lat": 37.389, "lng": -122.081
     }
 ]
