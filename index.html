@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HomeGroup Prototype</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HomeGroup">
+    <link rel="apple-touch-icon" href="https://via.placeholder.com/192x192.png?text=HG">
+    <meta name="theme-color" content="#007AFF">
+
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="app">
+        <header>
+            <h1>HomeGroup</h1>
+            <p>Better deals with neighbors</p>
+        </header>
+
+        <main>
+            <section class="search-container">
+                <div class="input-group">
+                    <label for="categorySearch">Service Needed</label>
+                    <select id="categorySearch" class="ios-input">
+                        <option value="">Select a service...</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label for="zipSearch">Zip Code</label>
+                    <input type="text" id="zipSearch" placeholder="e.g. 94043" class="ios-input">
+                </div>
+                <button id="searchBtn" class="ios-btn">Find Deals</button>
+            </section>
+
+            <section id="resultsSection" class="hidden">
+                <h2 id="resultsTitle">Local Results</h2>
+                <div id="resultsList"></div>
+            </section>
+
+            <section id="myProjectsSection" class="hidden">
+                <h2>My Active Requests</h2>
+                <div id="myProjectsList"></div>
+            </section>
+
+            <section id="inboxSection" class="hidden">
+                <h2>Inbox</h2>
+                <div id="inboxList"></div>
+            </section>
+
+            <section id="conversationSection" class="hidden">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:20px;">
+                    <button id="backToInbox" class="ios-btn-small" style="background:#8E8E93;">&larr; Back</button>
+                    <h2 id="chatVendorName" style="margin:0;">Chat</h2>
+                </div>
+                <div id="chatHistory" class="chat-container"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chatInput" placeholder="Message..." class="ios-input" style="flex:1;">
+                    <button id="sendChatBtn" class="ios-btn" style="padding:10px 20px;">Send</button>
+                </div>
+            </section>
+
+            <!-- Detail Modal -->
+            <div id="detailModal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-btn">&times;</span>
+                    <div id="modalHeader"></div>
+                    <div id="modalBody"></div>
+                    <div id="requestForm" class="hidden">
+                        <hr>
+                        <h3>Request Your Service</h3>
+                        <p style="font-size: 14px; color: var(--ios-gray);">Describe what you need. We'll tell the vendor you're a neighbor!</p>
+                        <textarea id="userRequirement" placeholder="e.g. I have a similar fence issue..." class="ios-input" style="width:100%; height:80px; box-sizing:border-box;"></textarea>
+                        <button id="submitRequestBtn" class="ios-btn" style="width:100%; margin-top:10px;">Submit to Vendor</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="tab-bar">
+            <div class="tab-item active" id="searchTab">Search</div>
+            <div class="tab-item" id="projectsTab">My Projects</div>
+            <div class="tab-item" id="inboxTab">Inbox</div>
+        </nav>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

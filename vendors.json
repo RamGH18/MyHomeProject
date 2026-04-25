@@ -1,0 +1,42 @@
+[
+    {
+        "id": 1,
+        "name": "Quick Fix Plumbing",
+        "category": "Plumbing",
+        "phone": "555-0101",
+        "zipcodes": ["94043", "94040"],
+        "rating": 4.8
+    },
+    {
+        "id": 2,
+        "name": "Precision Fencing",
+        "category": "Fencing",
+        "phone": "555-0202",
+        "zipcodes": ["94043", "95051"],
+        "rating": 4.5
+    },
+    {
+        "id": 3,
+        "name": "EcoPaint Pros",
+        "category": "Painting",
+        "phone": "555-0303",
+        "zipcodes": ["94040", "94041"],
+        "rating": 4.9
+    },
+    {
+        "id": 4,
+        "name": "Reliable Roofers",
+        "category": "Roofing",
+        "phone": "555-0404",
+        "zipcodes": ["94043"],
+        "rating": 4.2
+    },
+    {
+        "id": 5,
+        "name": "Modern Handyman",
+        "category": "Handyman",
+        "phone": "555-0505",
+        "zipcodes": ["95051", "94040"],
+        "rating": 4.7
+    }
+]

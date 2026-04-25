@@ -1,0 +1,21 @@
+{
+  "short_name": "HomeGroup",
+  "name": "HomeGroup - Neighbor Collaboration",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192.png?text=HG",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512.png?text=HomeGroup",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "background_color": "#F2F2F7",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#007AFF"
+}
