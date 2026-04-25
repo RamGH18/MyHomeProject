@@ -52,11 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Tab Switching
     searchTab.addEventListener('click', () => { setActiveTab(searchTab); showSection('search'); });
-    mapTab.addEventListener('click', () => { 
-        setActiveTab(mapTab); 
-        showSection('map'); 
-        initMap(); 
-    });
+    mapTab.addEventListener('click', () => { setActiveTab(mapTab); showSection('map'); initMap(); });
     projectsTab.addEventListener('click', () => { setActiveTab(projectsTab); showSection('projects'); renderMyProjects(); });
     inboxTab.addEventListener('click', () => { setActiveTab(inboxTab); showSection('inbox'); renderInbox(); });
 
@@ -109,38 +105,27 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initMap() {
-    if (map) return; // Already initialized
-
-    // Center on Mountain View (zip 94043 area)
+    if (map) return;
     map = L.map('map').setView([37.422, -122.084], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Plot Vendors (Blue Icons)
     vendors.forEach(v => {
         if (v.lat && v.lng) {
-            L.marker([v.lat, v.lng]).addTo(map)
-                .bindPopup(`<b>${v.name}</b><br>${v.category}<br><button class="ios-btn-small" onclick="viewDetails(${v.id}, '94043')">View Deals</button>`);
+            L.marker([v.lat, v.lng]).addTo(map).bindPopup(`<b>${v.name}</b><br>${v.category}<br><button class="ios-btn-small" onclick="viewDetails(${v.id}, '94043')">View Deals</button>`);
         }
     });
 
-    // Plot Neighbor Projects (Green Icons)
     const greenIcon = new L.Icon({
         iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
         shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41]
+        iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
     });
 
     projects.forEach(p => {
         const vendor = vendors.find(v => v.id === p.vendorId);
         if (p.lat && p.lng) {
             L.marker([p.lat, p.lng], {icon: greenIcon}).addTo(map)
-                .bindPopup(`<b>${p.neighborName}'s House</b><br>Active: ${vendor.name}<br><em>"${p.description}"</em><br><button class="ios-btn-small" onclick="viewDetails(${vendor.id}, '${p.zipcode}')">Join Project</button>`);
+                .bindPopup(`<b>${p.neighborName}'s House</b><br>Active: ${vendor.name}<br><button class="ios-btn-small" onclick="viewDetails(${vendor.id}, '${p.zipcode}')">Join Project</button>`);
         }
     });
 }
@@ -148,18 +133,34 @@ function initMap() {
 function renderResults(filteredVendors, zipcode) {
     const resultsList = document.getElementById('resultsList');
     resultsList.innerHTML = '';
-
     filteredVendors.forEach(vendor => {
         const activeProject = projects.find(p => p.vendorId === vendor.id && p.zipcode === zipcode);
+        const gb = vendor.groupBuy;
+        const maxTiers = Math.max(...gb.tiers.map(t => t.count));
+        const progressPercent = Math.min((gb.current / maxTiers) * 100, 100);
+        const currentDiscount = [...gb.tiers].reverse().find(t => gb.current >= t.count)?.discount || 0;
+
         const card = document.createElement('div');
         card.className = 'vendor-card';
+        card.style.flexDirection = 'column';
+        card.style.alignItems = 'flex-start';
         card.innerHTML = `
-            <div class="vendor-info">
-                <h3>${vendor.name}</h3>
-                <p>${vendor.category} • ★ ${vendor.rating}</p>
-                ${activeProject ? `<div class="badge">Working at ${activeProject.neighborName}'s</div>` : ''}
+            <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                <div class="vendor-info">
+                    <h3>${vendor.name}</h3>
+                    <p>${vendor.category} • ★ ${vendor.rating}</p>
+                </div>
+                <button class="ios-btn-small" onclick="viewDetails(${vendor.id}, '${zipcode}')">View</button>
             </div>
-            <button class="ios-btn-small" onclick="viewDetails(${vendor.id}, '${zipcode}')">View</button>
+            
+            ${activeProject ? `<div class="badge" style="margin-top:8px;">Working at ${activeProject.neighborName}'s</div>` : ''}
+            
+            <div class="mini-gb-container">
+                <div class="mini-progress-track">
+                    <div class="mini-progress-fill" style="width: ${progressPercent}%"></div>
+                </div>
+                <div class="mini-gb-text">🔥 ${currentDiscount}% OFF Deal • ${gb.current} neighbors joined</div>
+            </div>
         `;
         resultsList.appendChild(card);
     });
@@ -179,23 +180,66 @@ function viewDetails(vendorId, zipcode) {
     const modalBody = document.getElementById('modalBody');
     const requestForm = document.getElementById('requestForm');
 
+    // Reset visibility
     requestForm.classList.add('hidden');
+    modalBody.classList.remove('hidden');
+    
     modalHeader.innerHTML = `<h2 style="margin-top:0">${vendor.name}</h2>`;
+    
+    // Calculate Group Buy Progress
+    const gb = vendor.groupBuy;
+    const maxTiers = Math.max(...gb.tiers.map(t => t.count));
+    const progressPercent = Math.min((gb.current / maxTiers) * 100, 100);
+    
+    const nextTier = gb.tiers.find(t => t.count > gb.current) || gb.tiers[gb.tiers.length-1];
+    const currentDiscount = [...gb.tiers].reverse().find(t => gb.current >= t.count)?.discount || 0;
+
     modalBody.innerHTML = `
         <p><strong>Category:</strong> ${vendor.category}</p>
-        <p><strong>Rating:</strong> ★ ${vendor.rating}</p>
+        
+        <div class="group-buy-container">
+            <h4 style="margin:0; color:var(--ios-blue);">Neighborhood Group Deal</h4>
+            <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:13px;">
+                <span>Current: <strong>${currentDiscount}% OFF</strong></span>
+                <span>Neighbors: <strong>${gb.current}</strong></span>
+            </div>
+            
+            <div class="progress-track">
+                <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                ${gb.tiers.map(t => `
+                    <div class="tier-marker" style="left: ${(t.count/maxTiers)*100}%"></div>
+                    <div class="tier-label" style="left: ${(t.count/maxTiers)*100}%">${t.discount}%</div>
+                `).join('')}
+            </div>
+            
+            <p style="font-size:12px; color:var(--ios-gray); margin-top:20px; text-align:center;">
+                ${gb.current < maxTiers ? `Only <strong>${nextTier.count - gb.current} more</strong> neighbor(s) needed for ${nextTier.discount}% OFF!` : 'MAX DISCOUNT ACHIEVED!'}
+            </p>
+            
+            <button class="share-btn" onclick="shareDeal('${vendor.name}', ${currentDiscount})">Share with Neighbors</button>
+        </div>
+
         <hr>
         ${activeProject ? `
             <div class="neighbor-alert">
                 <h4 style="margin:0; color:#2e7d32;">Neighbor Opportunity!</h4>
                 <p style="font-size:14px;">${activeProject.neighborName} is doing: <em>"${activeProject.description}"</em></p>
-                <button class="ios-btn" style="width:100%; margin-top:10px;" onclick="showRequestForm()">Join Project & Get Neighbor Deal</button>
+                <button class="ios-btn" style="width:100%; margin-top:10px;" onclick="showRequestForm()">Join Project & Get Deal</button>
             </div>
         ` : `
             <button class="ios-btn" style="width:100%;" onclick="showRequestForm()">Request a Quote</button>
         `}
     `;
     modal.classList.remove('hidden');
+}
+
+function shareDeal(vendorName, discount) {
+    const text = `Hey neighbors! I'm using HomeGroup to get a deal on ${vendorName}. We currently have a ${discount}% neighborhood discount. Join in so we can hit the next tier!`;
+    if (navigator.share) {
+        navigator.share({ title: 'HomeGroup Deal', text: text, url: window.location.href });
+    } else {
+        alert("Simulated Share Sheet:\n\n" + text);
+    }
 }
 
 function showRequestForm() {
@@ -205,48 +249,34 @@ function showRequestForm() {
 
 document.getElementById('submitRequestBtn').onclick = () => {
     const requirement = document.getElementById('userRequirement').value;
-    if (!requirement) {
-        alert('Please describe what you need.');
-        return;
-    }
+    if (!requirement) { alert('Please describe what you need.'); return; }
 
     const newRequest = {
-        id: Date.now(),
-        vendorName: currentVendor.name,
-        category: currentVendor.category,
-        zipcode: currentZip,
-        requirement: requirement,
-        status: 'Pending Vendor Review',
-        date: new Date().toLocaleDateString()
+        id: Date.now(), vendorName: currentVendor.name, category: currentVendor.category,
+        zipcode: currentZip, requirement: requirement, status: 'Pending Review', date: new Date().toLocaleDateString()
     };
 
     userRequests.push(newRequest);
-    chatHistory[currentVendor.name] = [{ from: 'user', text: `Hi! I need help with: ${requirement}. I see you are working at my neighbor's house!`, date: new Date().toLocaleTimeString() }];
+    
+    // Simulate updating the count
+    currentVendor.groupBuy.current += 1;
 
-    alert(`Success! Your request has been sent to ${currentVendor.name}.`);
+    chatHistory[currentVendor.name] = [{ from: 'user', text: `Hi! I joined the group project for: ${requirement}.`, date: new Date().toLocaleTimeString() }];
+    alert(`Success! You've joined the neighborhood group. You helped everyone get closer to the next discount tier!`);
     document.getElementById('detailModal').classList.add('hidden');
-    document.getElementById('userRequirement').value = '';
-
     simulateVendorResponse(newRequest);
 };
 
 function simulateVendorResponse(request) {
     setTimeout(() => {
-        const vendorReplyText = `Hi! I saw your request. Since I'm already at your neighbor's house, I can offer you a 15% discount if we schedule it for tomorrow!`;
-        
+        const vendorReplyText = `Thanks for joining the group! I'll be in your neighborhood tomorrow. I've applied the current neighborhood discount to your quote.`;
         inboxMessages.unshift({
-            id: Date.now(),
-            from: request.vendorName,
-            subject: `Neighbor Deal Received`,
-            body: vendorReplyText,
+            id: Date.now(), from: request.vendorName, subject: `Group Deal Applied`, body: vendorReplyText,
             date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
-        
         chatHistory[request.vendorName].push({ from: 'vendor', text: vendorReplyText, date: new Date().toLocaleTimeString() });
-
         const req = userRequests.find(r => r.id === request.id);
         if (req) req.status = 'Deal Received';
-        
         document.getElementById('inboxTab').innerHTML = 'Inbox <span style="color:red; font-weight:bold;">(1)</span>';
     }, 5000);
 }
@@ -255,21 +285,11 @@ function renderInbox() {
     const list = document.getElementById('inboxList');
     document.getElementById('inboxTab').innerHTML = 'Inbox';
     list.innerHTML = '';
-
     if (inboxMessages.length === 0) {
         list.innerHTML = '<p style="text-align:center; padding:40px; color:var(--ios-gray);">Your inbox is empty.</p>';
         return;
     }
-
     inboxMessages.forEach(msg => {
-        const eventTitle = encodeURIComponent(`${msg.from} Service - HomeGroup Deal`);
-        const eventDetails = encodeURIComponent(`Neighbor discount confirmed for: ${msg.subject}`);
-        const eventLocation = encodeURIComponent(`My Home`);
-        const start = new Date(); start.setDate(start.getDate() + 1); start.setHours(10, 0, 0, 0);
-        const end = new Date(start); end.setHours(11, 0, 0, 0);
-        const formatDate = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
-        const calendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${formatDate(start)}/${formatDate(end)}&details=${eventDetails}&location=${eventLocation}`;
-
         const card = document.createElement('div');
         card.className = 'vendor-card';
         card.style.flexDirection = 'column'; card.style.alignItems = 'flex-start';
@@ -281,7 +301,7 @@ function renderInbox() {
             <p style="margin: 5px 0; font-weight:600; font-size:14px;">${msg.subject}</p>
             <p style="margin: 0; font-size:14px; color:#444;">${msg.body}</p>
             <div style="display:flex; gap:10px; width:100%; margin-top:15px;">
-                <a href="${calendarUrl}" target="_blank" class="ios-btn" style="flex:1; padding:10px; font-size:13px; text-decoration:none; text-align:center;" onclick="confirmAccept('${msg.from}')">Accept Deal</a>
+                <button class="ios-btn" style="flex:1; padding:10px; font-size:13px;" onclick="confirmAccept('${msg.from}')">Accept Deal</button>
                 <button class="ios-btn" style="flex:1; padding:10px; font-size:13px; background:#8E8E93;" onclick="openChat('${msg.from}')">Respond</button>
             </div>
         `;
@@ -320,7 +340,7 @@ function sendMessage() {
     input.value = '';
     renderChatHistory();
     setTimeout(() => {
-        chatHistory[currentVendorChat].push({ from: 'vendor', text: "Got it! Let me check my schedule and get back to you.", date: new Date().toLocaleTimeString() });
+        chatHistory[currentVendorChat].push({ from: 'vendor', text: "Got it! Let me check my schedule.", date: new Date().toLocaleTimeString() });
         renderChatHistory();
     }, 2000);
 }
@@ -328,7 +348,7 @@ function sendMessage() {
 function confirmAccept(vendorName) {
     const req = userRequests.find(r => r.vendorName === vendorName);
     if (req) req.status = 'Scheduled';
-    alert(`Success! Updated to 'Scheduled'. Opening Google Calendar...`);
+    alert(`Success! Opening Google Calendar...`);
     setTimeout(() => { inboxMessages = inboxMessages.filter(m => m.from !== vendorName); renderInbox(); }, 1000);
 }
 
@@ -350,7 +370,4 @@ function renderMyProjects() {
         list.appendChild(card);
     });
 }
-
-document.querySelector('.close-btn').onclick = () => {
-    document.getElementById('detailModal').classList.add('hidden');
-};
+document.querySelector('.close-btn').onclick = () => { document.getElementById('detailModal').classList.add('hidden'); };

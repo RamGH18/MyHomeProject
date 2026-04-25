@@ -6,7 +6,16 @@
         "phone": "555-0101",
         "zipcodes": ["94043", "94040"],
         "rating": 4.8,
-        "lat": 37.422, "lng": -122.084
+        "lat": 37.422, "lng": -122.084,
+        "groupBuy": {
+            "current": 3,
+            "tiers": [
+                {"count": 1, "discount": 0},
+                {"count": 3, "discount": 10},
+                {"count": 5, "discount": 20},
+                {"count": 10, "discount": 30}
+            ]
+        }
     },
     {
         "id": 2,
@@ -15,7 +24,15 @@
         "phone": "555-0202",
         "zipcodes": ["94043", "95051"],
         "rating": 4.5,
-        "lat": 37.415, "lng": -122.075
+        "lat": 37.415, "lng": -122.075,
+        "groupBuy": {
+            "current": 1,
+            "tiers": [
+                {"count": 1, "discount": 0},
+                {"count": 3, "discount": 15},
+                {"count": 6, "discount": 25}
+            ]
+        }
     },
     {
         "id": 3,
@@ -24,7 +41,14 @@
         "phone": "555-0303",
         "zipcodes": ["94040", "94041"],
         "rating": 4.9,
-        "lat": 37.386, "lng": -122.083
+        "lat": 37.386, "lng": -122.083,
+        "groupBuy": {
+            "current": 4,
+            "tiers": [
+                {"count": 1, "discount": 0},
+                {"count": 5, "discount": 20}
+            ]
+        }
     },
     {
         "id": 4,
@@ -33,7 +57,15 @@
         "phone": "555-0404",
         "zipcodes": ["94043"],
         "rating": 4.2,
-        "lat": 37.430, "lng": -122.095
+        "lat": 37.430, "lng": -122.095,
+        "groupBuy": {
+            "current": 2,
+            "tiers": [
+                {"count": 1, "discount": 0},
+                {"count": 3, "discount": 10},
+                {"count": 5, "discount": 15}
+            ]
+        }
     },
     {
         "id": 5,
@@ -42,6 +74,13 @@
         "phone": "555-0505",
         "zipcodes": ["95051", "94040"],
         "rating": 4.7,
-        "lat": 37.352, "lng": -121.953
+        "lat": 37.352, "lng": -121.953,
+        "groupBuy": {
+            "current": 1,
+            "tiers": [
+                {"count": 1, "discount": 0},
+                {"count": 3, "discount": 10}
+            ]
+        }
     }
 ]

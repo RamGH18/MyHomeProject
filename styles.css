@@ -125,6 +125,31 @@ h2 {
     font-weight: 600;
 }
 
+.mini-gb-container {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.mini-progress-track {
+    background: #E5E5EA;
+    height: 4px;
+    border-radius: 2px;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.mini-progress-fill {
+    background: var(--ios-blue);
+    height: 100%;
+    border-radius: 2px;
+}
+
+.mini-gb-text {
+    font-size: 11px;
+    color: var(--ios-blue);
+    font-weight: 600;
+}
+
 .neighbor-alert {
     background: #e8f5e9;
     padding: 15px;
@@ -167,6 +192,59 @@ h2 {
 .chat-input-area {
     display: flex;
     gap: 10px;
+}
+
+/* Group Buy Styles */
+.group-buy-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    margin: 15px 0;
+    border: 1px solid #E5E5EA;
+}
+
+.progress-track {
+    background: #E5E5EA;
+    height: 8px;
+    border-radius: 4px;
+    margin: 15px 0 10px;
+    position: relative;
+}
+
+.progress-fill {
+    background: var(--ios-blue);
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease-in-out;
+}
+
+.tier-marker {
+    position: absolute;
+    top: -5px;
+    width: 2px;
+    height: 18px;
+    background: #8E8E93;
+}
+
+.tier-label {
+    position: absolute;
+    top: 15px;
+    font-size: 10px;
+    color: var(--ios-gray);
+    transform: translateX(-50%);
+}
+
+.share-btn {
+    background: #E1F0FF;
+    color: var(--ios-blue);
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
 }
 
 .tab-bar {
