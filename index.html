@@ -43,8 +43,17 @@
             </section>
 
             <section id="resultsSection" class="hidden">
-                <h2 id="resultsTitle">Local Results</h2>
-                <div id="resultsList"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 id="resultsTitle" style="margin-bottom:0;">Results</h2>
+                    <div id="sortContainer" class="hidden">
+                        <select id="sortResults" class="ios-input" style="padding: 5px 30px 5px 10px; font-size: 13px; height: auto;">
+                            <option value="rating">Sort: Rating</option>
+                            <option value="distance">Sort: Distance</option>
+                        </select>
+                    </div>
+                </div>
+                <p id="searchModeLabel" style="font-size: 13px; color: var(--ios-gray); margin-top: 5px;"></p>
+                <div id="resultsList" style="margin-top:15px;"></div>
             </section>
 
             <section id="mapSection" class="hidden">
