@@ -93,16 +93,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function performSearch(category, zipcode, updateMapOnly = false) {
     const sortBy = document.getElementById('sortResults').value;
+    const cleanZip = zipcode.trim();
+    
+    console.log(`Performing search: ${category} in ${cleanZip}`);
+
+    // 1. Exact Match (Neighbors found)
     let filtered = vendors.filter(v => 
-        v.category.toLowerCase() === category.toLowerCase() && v.zipcodes.includes(zipcode)
+        v.category.toLowerCase() === category.toLowerCase() && 
+        v.zipcodes.includes(cleanZip)
     );
 
     let isFallback = false;
     if (filtered.length === 0) {
         isFallback = true;
         filtered = vendors.filter(v => v.category.toLowerCase() === category.toLowerCase());
-        if (sortBy === 'rating') filtered.sort((a, b) => b.rating - a.rating);
-        else filtered.sort((a, b) => calculateDistance(USER_LOCATION.lat, USER_LOCATION.lng, a.lat, a.lng) - calculateDistance(USER_LOCATION.lat, USER_LOCATION.lng, b.lat, b.lng));
+        
+        if (sortBy === 'rating') {
+            filtered.sort((a, b) => b.rating - a.rating);
+        } else {
+            filtered.sort((a, b) => {
+                const dA = calculateDistance(USER_LOCATION.lat, USER_LOCATION.lng, a.lat, a.lng);
+                const dB = calculateDistance(USER_LOCATION.lat, USER_LOCATION.lng, b.lat, b.lng);
+                return dA - dB;
+            });
+        }
         filtered = filtered.slice(0, 5);
     }
 
@@ -111,10 +125,12 @@ function performSearch(category, zipcode, updateMapOnly = false) {
         document.getElementById('searchModeLabel').innerHTML = isFallback ? 
             `No neighbors found for ${category}. Showing top 5 providers in the Bay Area:` : 
             `Great news! Neighbors are already using these ${category} vendors:`;
-        renderResults(filtered, zipcode, isFallback);
+        
+        renderResults(filtered, cleanZip, isFallback);
+        document.getElementById('resultsSection').classList.remove('hidden');
     }
 
-    if (map) updateMapMarkers(filtered, zipcode);
+    if (map) updateMapMarkers(filtered, cleanZip);
 }
 
 function initMap() {
